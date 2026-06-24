@@ -25,7 +25,7 @@ function App() {
       <OrderProvider>
         <CartProvider>
           <ProductProvider>
-            <Router>
+            <Router basename={import.meta.env.BASE_URL}>
               <div className="app">
                 <Header />
                 <main className="main-content">

@@ -9,7 +9,7 @@ export const ProductProvider = ({ children }) => {
   useEffect(() => {
     const savedProducts = localStorage.getItem('gori_products');
     const savedVersion = localStorage.getItem('gori_products_version');
-    const currentVersion = '2'; // bump this to force reset defaults
+    const currentVersion = '4'; // bump this to force reset defaults
     if (savedProducts && savedVersion === currentVersion) {
       setProducts(JSON.parse(savedProducts));
     } else {

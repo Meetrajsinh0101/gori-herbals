@@ -1,10 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import { ProductContext } from '../context/ProductContext';
 import './Home.css';
 
 const Home = () => {
   const { products } = useContext(ProductContext);
+  const [activeCategory, setActiveCategory] = useState('All Products');
+
+  const categories = ['All Products', 'Hair Care', 'Skin Care', 'Wellness'];
+
+  const filteredProducts = activeCategory === 'All Products' 
+    ? products 
+    : products.filter(p => p.category === activeCategory);
 
   return (
     <div className="home-page">
@@ -19,25 +26,32 @@ const Home = () => {
       <section className="categories-section">
         <div className="container">
           <div className="category-list">
-            <div className="category-item active">All Products</div>
-            <div className="category-item">Hair Care</div>
-            <div className="category-item">Skin Care</div>
-            <div className="category-item">Wellness</div>
+            {categories.map(cat => (
+              <div 
+                key={cat}
+                className={`category-item ${activeCategory === cat ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="products-section">
         <div className="container">
-          <h2 className="section-title">Trending Now</h2>
+          <h2 className="section-title">
+            {activeCategory === 'All Products' ? 'Trending Now' : activeCategory}
+          </h2>
           <div className="product-grid">
-            {products.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-            {/* Duplicate for demo purposes */}
-            {products.map(product => (
-              <ProductCard key={`${product.id}-copy`} product={{...product, id: `${product.id}-copy`}} />
-            ))}
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="no-products-message">No products found in this category.</p>
+            )}
           </div>
         </div>
       </section>

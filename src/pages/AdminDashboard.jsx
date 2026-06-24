@@ -22,13 +22,14 @@ const AdminDashboard = () => {
     image: '',
     description: '',
     benefits: '',
-    ingredients: ''
+    ingredients: '',
+    category: 'Wellness'
   });
 
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData({
-      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: ''
+      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: '', category: 'Wellness'
     });
     setIsModalOpen(true);
   };
@@ -43,7 +44,8 @@ const AdminDashboard = () => {
       image: product.image,
       description: product.description,
       benefits: Array.isArray(product.benefits) ? product.benefits.join(', ') : product.benefits,
-      ingredients: product.ingredients
+      ingredients: product.ingredients,
+      category: product.category || 'Wellness'
     });
     setIsModalOpen(true);
   };
@@ -55,6 +57,17 @@ const AdminDashboard = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -175,6 +188,14 @@ const AdminDashboard = () => {
                 <label>Subtitle</label>
                 <input type="text" name="subtitle" value={formData.subtitle} onChange={handleChange} required />
               </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select name="category" value={formData.category} onChange={handleChange} required className="status-select" style={{width: '100%', padding: '8px'}}>
+                  <option value="Wellness">Wellness</option>
+                  <option value="Hair Care">Hair Care</option>
+                  <option value="Skin Care">Skin Care</option>
+                </select>
+              </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Price (₹)</label>
@@ -186,8 +207,9 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Image URL</label>
-                <input type="text" name="image" value={formData.image} onChange={handleChange} required />
+                <label>Product Image</label>
+                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                {formData.image && <img src={formData.image} alt="Preview" style={{ width: '100px', marginTop: '10px', borderRadius: '4px' }} />}
               </div>
               <div className="form-group">
                 <label>Description</label>
