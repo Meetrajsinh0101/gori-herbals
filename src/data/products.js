@@ -8,11 +8,11 @@ export const products = [
     category: 'Wellness',
     rating: 4.8,
     reviews: 124,
-    image: '/images/moringa-front.jpg',
+    image: import.meta.env.BASE_URL + 'images/moringa-front.jpg',
     images: [
-      '/images/moringa-front.jpg',
-      '/images/moringa-back.jpg',
-      '/images/moringa-usage.jpg',
+      import.meta.env.BASE_URL + 'images/moringa-front.jpg',
+      import.meta.env.BASE_URL + 'images/moringa-back.jpg',
+      import.meta.env.BASE_URL + 'images/moringa-usage.jpg',
     ],
     description: 'Gori Herbals Organic Moringa Powder is made from premium, carefully selected Moringa oleifera leaves, dried and finely milled to preserve their nutrients. It is a potent superfood rich in essential vitamins, minerals, and antioxidants, supporting overall vitality and immune health.',
     benefits: [
@@ -32,10 +32,10 @@ export const products = [
     category: 'Wellness',
     rating: 4.7,
     reviews: 89,
-    image: '/images/triphala-front.jpg',
+    image: import.meta.env.BASE_URL + 'images/triphala-front.jpg',
     images: [
-      '/images/triphala-front.jpg',
-      '/images/triphala-multi.jpg',
+      import.meta.env.BASE_URL + 'images/triphala-front.jpg',
+      import.meta.env.BASE_URL + 'images/triphala-multi.jpg',
     ],
     description: 'A traditional Ayurvedic formulation combining three potent fruits - Amla, Haritaki, and Bibhitaki. It helps in digestion, detoxifies the body, and supports overall wellness and rejuvenation.',
     benefits: [
