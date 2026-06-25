@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -25,7 +25,7 @@ function App() {
       <OrderProvider>
         <CartProvider>
           <ProductProvider>
-            <Router>
+            <Router basename={import.meta.env.BASE_URL}>
               <div className="app">
                 <Header />
                 <main className="main-content">
