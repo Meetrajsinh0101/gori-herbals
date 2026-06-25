@@ -22,7 +22,10 @@ const Header = () => {
         </div>
 
         <nav className="header-nav">
-
+          <Link to="/admin-login" className="nav-item">
+            <FiUser className="icon" />
+            <span>Admin</span>
+          </Link>
           <Link to="/cart" className="nav-item">
             <div style={{position: 'relative'}}>
               <FiShoppingCart className="icon" />
