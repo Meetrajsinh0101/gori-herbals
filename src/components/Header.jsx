@@ -8,7 +8,7 @@ const Header = () => {
   const { cartItems } = React.useContext(CartContext);
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   return (
-    <header className="header shadow-card">
+    <header className="header shadow-card glass-panel" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
       <div className="container header-container">
         <div className="logo">
           <Link to="/">
@@ -22,10 +22,7 @@ const Header = () => {
         </div>
 
         <nav className="header-nav">
-          <Link to="/admin" className="nav-item">
-            <FiUser className="icon" />
-            <span>Admin</span>
-          </Link>
+
           <Link to="/cart" className="nav-item">
             <div style={{position: 'relative'}}>
               <FiShoppingCart className="icon" />

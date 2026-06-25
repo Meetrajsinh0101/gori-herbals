@@ -15,9 +15,9 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      <section className="hero">
-        <div className="container hero-content">
-          <h1>Natural Healing with Traditional Wisdom</h1>
+      <section className="hero glass-panel animate-fade-in" style={{ borderRadius: 'var(--radius-xl)', margin: 'var(--spacing-md) 0', overflow: 'hidden', position: 'relative' }}>
+        <div className="hero-content" style={{ padding: '60px 40px', background: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.7))' }}>
+          <h1>Pure & Natural <br/><span style={{ color: 'var(--color-secondary)' }}>Ayurvedic Wellness</span></h1>
           <p>Discover our premium range of organic herbal products sourced directly from nature to nurture your health and vitality.</p>
           <button className="btn-primary">Shop Now</button>
         </div>

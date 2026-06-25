@@ -23,13 +23,14 @@ const AdminDashboard = () => {
     description: '',
     benefits: '',
     ingredients: '',
-    category: 'Wellness'
+    category: 'Wellness',
+    media: []
   });
 
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData({
-      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: '', category: 'Wellness'
+      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: '', category: 'Wellness', media: []
     });
     setIsModalOpen(true);
   };
@@ -45,7 +46,8 @@ const AdminDashboard = () => {
       description: product.description,
       benefits: Array.isArray(product.benefits) ? product.benefits.join(', ') : product.benefits,
       ingredients: product.ingredients,
-      category: product.category || 'Wellness'
+      category: product.category || 'Wellness',
+      media: product.media || (product.images ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : []))
     });
     setIsModalOpen(true);
   };
@@ -60,14 +62,31 @@ const AdminDashboard = () => {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const readers = files.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve({
+              url: reader.result,
+              type: file.type.startsWith('video/') ? 'video' : 'image'
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      Promise.all(readers).then(results => {
+        setFormData(prev => ({ ...prev, media: [...prev.media, ...results] }));
+      });
     }
+  };
+  
+  const removeMedia = (index) => {
+    const newMedia = [...formData.media];
+    newMedia.splice(index, 1);
+    setFormData({ ...formData, media: newMedia });
   };
 
   const handleSubmit = (e) => {
@@ -75,7 +94,9 @@ const AdminDashboard = () => {
     
     const formattedData = {
       ...formData,
-      benefits: formData.benefits.split(',').map(b => b.trim())
+      benefits: formData.benefits.split(',').map(b => b.trim()),
+      image: formData.media.length > 0 ? formData.media[0].url : formData.image, // Backward compatibility
+      images: formData.media.map(m => m.url) // Backward compatibility
     };
 
     if (editingProduct) {
@@ -207,9 +228,25 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Product Image</label>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                {formData.image && <img src={formData.image} alt="Preview" style={{ width: '100px', marginTop: '10px', borderRadius: '4px' }} />}
+                <label>Product Media (Images & Videos)</label>
+                <input type="file" accept="image/*,video/*" multiple onChange={handleImageUpload} />
+                <div className="media-preview-container" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                  {formData.media && formData.media.map((item, index) => (
+                    <div key={index} style={{ position: 'relative' }}>
+                      {item.type === 'video' ? (
+                        <video src={item.url} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
+                      ) : (
+                        <img src={item.url} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
+                      )}
+                      <button 
+                        type="button" 
+                        onClick={() => removeMedia(index)} 
+                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: 'none', cursor: 'pointer' }}>
+                        x
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="form-group">
                 <label>Description</label>

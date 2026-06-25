@@ -15,7 +15,11 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card shadow-card">
       <Link to={`/product/${product.id}`} className="product-image">
-        <img src={product.image} alt={product.name} />
+        {product.media && product.media.length > 0 && product.media[0].type === 'video' ? (
+           <video src={product.media[0].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+        ) : (
+           <img src={product.media && product.media.length > 0 ? product.media[0].url : product.image} alt={product.name} />
+        )}
       </Link>
       <div className="product-info">
         <Link to={`/product/${product.id}`}>

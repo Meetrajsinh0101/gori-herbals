@@ -21,7 +21,9 @@ const ProductDetail = () => {
 
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const productImages = product.images || [product.image];
+  // Normalize media for display
+  const productMedia = product.media || (product.images ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : []));
+  const currentMedia = productMedia[selectedImage] || { url: '', type: 'image' };
 
   return (
     <div className="product-detail-page">
@@ -32,17 +34,28 @@ const ProductDetail = () => {
 
         <div className="product-main">
           <div className="product-gallery">
-            <div className="main-image shadow-card">
-              <img src={productImages[selectedImage]} alt={product.name} />
+            <div className="main-image shadow-card" style={{ position: 'relative', overflow: 'hidden' }}>
+              {currentMedia.type === 'video' ? (
+                <video src={currentMedia.url} controls autoPlay muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <img src={currentMedia.url} alt={product.name} />
+              )}
             </div>
             <div className="thumbnail-list">
-              {productImages.map((img, idx) => (
+              {productMedia.map((item, idx) => (
                 <div
                   key={idx}
                   className={`thumbnail ${selectedImage === idx ? 'active' : ''}`}
                   onClick={() => setSelectedImage(idx)}
                 >
-                  <img src={img} alt={`view ${idx + 1}`} />
+                  {item.type === 'video' ? (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                      <video src={item.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', borderRadius: '50%', padding: '4px', fontSize: '10px' }}>▶</div>
+                    </div>
+                  ) : (
+                    <img src={item.url} alt={`view ${idx + 1}`} />
+                  )}
                 </div>
               ))}
             </div>
