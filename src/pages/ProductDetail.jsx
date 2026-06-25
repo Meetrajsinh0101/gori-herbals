@@ -35,10 +35,12 @@ const ProductDetail = () => {
         <div className="product-main">
           <div className="product-gallery">
             <div className="main-image shadow-card" style={{ position: 'relative', overflow: 'hidden' }}>
-              {currentMedia.type === 'video' ? (
-                <video src={currentMedia.url} controls autoPlay muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <img src={currentMedia.url} alt={product.name} />
+              {currentMedia.url && (
+                currentMedia.type === 'video' ? (
+                  <video src={currentMedia.url} controls autoPlay muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <img src={currentMedia.url} alt={product.name} />
+                )
               )}
             </div>
             <div className="thumbnail-list">

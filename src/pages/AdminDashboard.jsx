@@ -24,13 +24,14 @@ const AdminDashboard = () => {
     benefits: '',
     ingredients: '',
     category: 'Wellness',
-    media: []
+    media: [],
+    videoUrl: ''
   });
 
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData({
-      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: '', category: 'Wellness', media: []
+      name: '', subtitle: '', price: '', originalPrice: '', image: '', description: '', benefits: '', ingredients: '', category: 'Wellness', media: [], videoUrl: ''
     });
     setIsModalOpen(true);
   };
@@ -47,7 +48,8 @@ const AdminDashboard = () => {
       benefits: Array.isArray(product.benefits) ? product.benefits.join(', ') : product.benefits,
       ingredients: product.ingredients,
       category: product.category || 'Wellness',
-      media: product.media || (product.images ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : []))
+      media: product.media ? product.media.filter(m => m.type === 'image') : (product.images ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : [])),
+      videoUrl: product.media ? (product.media.find(m => m.type === 'video')?.url || '') : ''
     });
     setIsModalOpen(true);
   };
@@ -61,23 +63,49 @@ const AdminDashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve({
+            url: canvas.toDataURL('image/jpeg', 0.7),
+            type: 'image'
+          });
+        };
+      };
+    });
+  };
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const readers = files.map(file => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve({
-              url: reader.result,
-              type: file.type.startsWith('video/') ? 'video' : 'image'
-            });
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-
-      Promise.all(readers).then(results => {
+      const compressPromises = files.map(file => compressImage(file));
+      Promise.all(compressPromises).then(results => {
         setFormData(prev => ({ ...prev, media: [...prev.media, ...results] }));
       });
     }
@@ -92,12 +120,20 @@ const AdminDashboard = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    const finalMedia = [...formData.media];
+    if (formData.videoUrl) {
+      finalMedia.push({ type: 'video', url: formData.videoUrl });
+    }
+
     const formattedData = {
       ...formData,
       benefits: formData.benefits.split(',').map(b => b.trim()),
-      image: formData.media.length > 0 ? formData.media[0].url : formData.image, // Backward compatibility
-      images: formData.media.map(m => m.url) // Backward compatibility
+      media: finalMedia,
+      image: finalMedia.length > 0 ? finalMedia[0].url : formData.image, // Backward compatibility
+      images: finalMedia.filter(m => m.type === 'image').map(m => m.url) // Backward compatibility
     };
+    
+    delete formattedData.videoUrl;
 
     if (editingProduct) {
       updateProduct({ ...editingProduct, ...formattedData });
@@ -228,25 +264,25 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Product Media (Images & Videos)</label>
-                <input type="file" accept="image/*,video/*" multiple onChange={handleImageUpload} />
+                <label>Product Images</label>
+                <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
                 <div className="media-preview-container" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
                   {formData.media && formData.media.map((item, index) => (
                     <div key={index} style={{ position: 'relative' }}>
-                      {item.type === 'video' ? (
-                        <video src={item.url} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
-                      ) : (
-                        <img src={item.url} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
-                      )}
+                      <img src={item.url} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />
                       <button 
                         type="button" 
                         onClick={() => removeMedia(index)} 
-                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: 'none', cursor: 'pointer', zIndex: 10 }}>
                         x
                       </button>
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="form-group">
+                <label>Video URL (Optional - e.g. MP4 link)</label>
+                <input type="url" name="videoUrl" value={formData.videoUrl} onChange={handleChange} placeholder="https://example.com/video.mp4" />
               </div>
               <div className="form-group">
                 <label>Description</label>
