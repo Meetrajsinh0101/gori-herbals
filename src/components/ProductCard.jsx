@@ -18,7 +18,7 @@ const ProductCard = ({ product }) => {
         {product.media && product.media.length > 0 && product.media[0].type === 'video' ? (
            <video src={product.media[0].url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
         ) : (
-           <img src={product.media && product.media.length > 0 ? product.media[0].url : product.image} alt={product.name} />
+           <img src={product.media && product.media.length > 0 ? product.media[0].url : (product.images && product.images.length > 0 ? product.images[0] : product.image)} alt={product.name} />
         )}
       </Link>
       <div className="product-info">

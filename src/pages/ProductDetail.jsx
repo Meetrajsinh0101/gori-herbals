@@ -21,8 +21,8 @@ const ProductDetail = () => {
 
   const [selectedImage, setSelectedImage] = useState(0);
 
-  // Normalize media for display
-  const productMedia = product.media || (product.images ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : []));
+  // Normalize media for display (handle empty arrays correctly)
+  const productMedia = (product.media && product.media.length > 0) ? product.media : (product.images && product.images.length > 0 ? product.images.map(url => ({ url, type: 'image' })) : (product.image ? [{ url: product.image, type: 'image' }] : []));
   const currentMedia = productMedia[selectedImage] || { url: '', type: 'image' };
 
   return (
